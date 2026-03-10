@@ -100,17 +100,36 @@ struct ContentView: View {
                         : cornerRadiusInsets.closed.bottom
                     )
                     .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
-                    .background(.black)
+                    .background {
+                        ZStack {
+                            Color.black
+                            if vm.notchState == .open {
+                                LinearGradient(
+                                    colors: [Color.white.opacity(0.08), Color.clear],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                                .blendMode(.screen)
+                            }
+                        }
+                    }
                     .clipShape(currentNotchShape)
+                    .overlay {
+                        currentNotchShape
+                            .stroke(Color.white.opacity(vm.notchState == .open ? 0.14 : 0.08), lineWidth: 1)
+                    }
                     .overlay(alignment: .top) {
                         Rectangle()
-                            .fill(.black)
-                            .frame(height: 1)
+                            .fill(Color.white.opacity(vm.notchState == .open ? 0.16 : 0.08))
+                            .frame(height: 0.8)
                             .padding(.horizontal, topCornerRadius)
                     }
                     .shadow(
                         color: ((vm.notchState == .open || isHovering) && Defaults[.enableShadow])
-                            ? .black.opacity(0.7) : .clear, radius: Defaults[.cornerRadiusScaling] ? 6 : 4
+                            ? .black.opacity(vm.notchState == .open ? 0.85 : 0.65) : .clear,
+                        radius: vm.notchState == .open ? 18 : (Defaults[.cornerRadiusScaling] ? 6 : 4),
+                        x: 0,
+                        y: vm.notchState == .open ? 10 : 0
                     )
                     .padding(
                         .bottom,
@@ -120,8 +139,8 @@ struct ContentView: View {
                 mainLayout
                     .frame(height: vm.notchState == .open ? vm.notchSize.height : nil)
                     .conditionalModifier(true) { view in
-                        let openAnimation = Animation.spring(response: 0.42, dampingFraction: 0.8, blendDuration: 0)
-                        let closeAnimation = Animation.spring(response: 0.45, dampingFraction: 1.0, blendDuration: 0)
+                        let openAnimation = Animation.interactiveSpring(response: 0.34, dampingFraction: 0.78, blendDuration: 0.02)
+                        let closeAnimation = Animation.interactiveSpring(response: 0.30, dampingFraction: 0.9, blendDuration: 0.02)
                         
                         return view
                             .animation(vm.notchState == .open ? openAnimation : closeAnimation, value: vm.notchState)
