@@ -5,6 +5,7 @@
 //  Created by Harsh Vardhan  Goswami  on 04/08/24.
 //
 
+import AppKit
 import Defaults
 import SwiftUI
 
@@ -42,6 +43,13 @@ struct BoringHeader: View {
                         OpenNotchHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon)
                             .transition(.scale(scale: 0.8).combined(with: .opacity))
                     } else {
+                        HStack(spacing: 6) {
+                            quickLaunchButton(symbol: "folder", bundleID: "com.apple.finder")
+                            quickLaunchButton(symbol: "safari", bundleID: "com.apple.Safari")
+                            quickLaunchButton(symbol: "terminal", bundleID: "com.apple.Terminal")
+                        }
+                        .padding(.trailing, 2)
+
                         if Defaults[.showMirror] {
                             Button(action: {
                                 vm.toggleCameraPreview()
@@ -97,6 +105,25 @@ struct BoringHeader: View {
         }
         .foregroundColor(.gray)
         .environmentObject(vm)
+    }
+
+    @ViewBuilder
+    private func quickLaunchButton(symbol: String, bundleID: String) -> some View {
+        Button {
+            guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return }
+            NSWorkspace.shared.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration(), completionHandler: nil)
+        } label: {
+            Capsule()
+                .fill(Color.white.opacity(0.08))
+                .frame(width: 26, height: 22)
+                .overlay {
+                    Image(systemName: symbol)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.9))
+                }
+        }
+        .buttonStyle(.plain)
+        .help("Open app")
     }
 
     func isHUDType(_ type: SneakContentType) -> Bool {

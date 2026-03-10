@@ -124,6 +124,20 @@ struct ContentView: View {
                             .frame(height: 0.8)
                             .padding(.horizontal, topCornerRadius)
                     }
+                    .overlay {
+                        if vm.notchState == .open || isHovering {
+                            currentNotchShape
+                                .fill(
+                                    RadialGradient(
+                                        colors: [Color.white.opacity(0.06), Color.clear],
+                                        center: .top,
+                                        startRadius: 4,
+                                        endRadius: 120
+                                    )
+                                )
+                                .allowsHitTesting(false)
+                        }
+                    }
                     .shadow(
                         color: ((vm.notchState == .open || isHovering) && Defaults[.enableShadow])
                             ? .black.opacity(vm.notchState == .open ? 0.85 : 0.65) : .clear,
